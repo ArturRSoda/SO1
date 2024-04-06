@@ -27,7 +27,7 @@ class Processor {
     vector<int> context;
     vector<vector<int>> context_table;
     int context_change_counter = 0;
-    time_t time_val;
+    time_t time_val = time(0);
     int time_counter = 0;
 };
 

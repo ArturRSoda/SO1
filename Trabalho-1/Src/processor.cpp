@@ -39,11 +39,11 @@ void Processor::changeStatus(int old_process, int active_process) {
 }
 
 void Processor::printStatus() {
-    cout << time_counter << '-' << time_counter+1 << "  ";
+    printf("%2d-%-2d ", time_counter, time_counter+1);
     for (auto p : process_list) {
-        if (p->status == "ready") cout << "--" << ' ';
-        else if (p->status == "running") cout << "##" << ' ';
-        else cout << "  ";
+        if (p->status == "ready") cout << "-- ";
+        else if (p->status == "running") cout << "## ";
+        else cout << "   ";
     }
     cout << '\n';
 }
@@ -54,16 +54,12 @@ void Processor::run() {
         cout << 'P' << i+1 << ' ';
     cout << '\n';
     
-    double dif;
-    time_val = time(0);
     active_process = scheduler->schedule(process_list);
     old_process = active_process;
     changeStatus(old_process, active_process);
     printStatus();
     while (true) {
-        dif = difftime(time(0), time_val);
-        time_val = time(0);
-        if (dif >= 1) {
+        if (difftime(time(0), time_val) >= 1) {
             process_list[active_process]->current_executed_time++;
             active_process = scheduler->schedule(process_list);
             changeStatus(old_process, active_process);
@@ -76,6 +72,7 @@ void Processor::run() {
             if (flag) break;
 
             time_counter++;
+            time_val = time(0);
             printStatus();
         }
     }
