@@ -1,7 +1,7 @@
 #ifndef processorH
 #define processorH
 
-#include <chrono>
+#include <time.h>
 #include "fileReader.h"
 #include "process.h"
 #include "scheduler.h"
@@ -17,6 +17,7 @@ class Processor {
     void loadProcess(vector<parameters*> pams);
     void changeContext();
     void printStatus();
+    void changeStatus(int old_process, int active_process);
 
     int id_count = 0;
     Scheduler* scheduler;
@@ -26,7 +27,8 @@ class Processor {
     vector<int> context;
     vector<vector<int>> context_table;
     int context_change_counter = 0;
-    chrono::time_point<chrono::system_clock> time;
+    time_t time_val;
+    int time_counter = 0;
 };
 
 #endif

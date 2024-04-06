@@ -9,7 +9,6 @@ using namespace std;
 class Scheduler {
  public:
     Scheduler(vector<Process*> process_list);
-    ~Scheduler();
     
     int schedule(vector<Process*> process_list);
     
