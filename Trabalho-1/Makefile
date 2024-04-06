@@ -1,6 +1,6 @@
 # ----- Variaveis -----
-	# Nome executavel
-NAME = main.out
+	# Target
+TARGET = result
 	# Compilador
 CC = g++
 	# Flags
@@ -9,8 +9,6 @@ FLAGS = -Wall -g
 SRC = Src
 	# Pasta dos arquivos objetos
 OBJ_DIR = Obj
-	# Target
-TARGET = $(NAME)
 # ---------------------
 
 
@@ -38,9 +36,7 @@ $(OBJ_DIR)/%.o: $(SRC)/%.cpp $(HDRS)
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
 
-all: $(TARGET)
-
 # Cria o diretorio dos .o files
 $(shell mkdir -p $(OBJ_DIR))
 
-.PHONY: all clean
+.PHONY: clean
