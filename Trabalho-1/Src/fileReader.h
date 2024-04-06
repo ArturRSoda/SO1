@@ -18,6 +18,7 @@ class FileReader {
 
     vector<parameters*> readFile();
 
+ private:
     vector<parameters*> pams;
     fstream file;
 };
