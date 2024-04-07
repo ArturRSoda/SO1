@@ -16,8 +16,11 @@ class Processor {
  private:
     void loadProcess(vector<parameters*> pams);
     void changeContext();
+    void checkStartDate();
+    void checkTerminated();
     void printStatus();
-    void changeStatus(int old_process, int active_process);
+    void updateActiveProcess(int active_process);
+    void chooseAlgorithm();
 
     int id_count = 0;
     Scheduler* scheduler;

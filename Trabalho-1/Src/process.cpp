@@ -3,6 +3,7 @@
 Process::Process(int id_, int start_date_, int duration_, int priority_) {
     id = id_;
     start_date = start_date_;
+    end_date = 10000000;
     duration = duration_;
     priority = priority_;
     status = "created";
