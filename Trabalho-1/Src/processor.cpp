@@ -54,10 +54,6 @@ void Processor::run() {
         cout << 'P' << i+1 << ' ';
     cout << '\n';
     
-    active_process = scheduler->schedule(process_list);
-    old_process = active_process;
-    changeStatus(old_process, active_process);
-    printStatus();
     while (true) {
         if (difftime(time(0), time_val) >= 1) {
             process_list[active_process]->current_executed_time++;
@@ -71,9 +67,9 @@ void Processor::run() {
                 if (p->status != "terminated") flag = false;
             if (flag) break;
 
+            printStatus();
             time_counter++;
             time_val = time(0);
-            printStatus();
         }
     }
 }
