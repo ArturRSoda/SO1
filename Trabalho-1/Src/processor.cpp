@@ -8,8 +8,7 @@ Processor::Processor(string file_name) {
     loadProcess(pams);
 
     scheduler = new Scheduler(process_list);
-    context = vector<int>(9);
-    context_table = vector<vector<int>>(process_list.size(), vector<int>(9));
+    SP = 0;
 }
 
 // Destrutor
@@ -29,9 +28,28 @@ void Processor::loadProcess(vector<parameters*> pams) {
 }
 
 // Simula mudanca de contexto
-void Processor::changeContext() {
-    context_table[old_process] = context;
-    context = context_table[active_process];
+void Processor::changeContext(int old_process, int active_process) {
+    // Se nao for a primeira iteracao
+    if (SP) {
+        // Carraga contexto
+        process_list[old_process]->SP = SP;
+        process_list[old_process]->PC = PC;
+        process_list[old_process]->ST = ST;
+        process_list[old_process]->REG = REG;
+    }
+
+    // Salva o contexto no processador
+    SP = process_list[active_process]->SP;
+    PC = process_list[active_process]->PC;
+    ST = process_list[active_process]->ST;
+    REG = process_list[active_process]->REG;
+}
+
+void Processor::printContext() {
+    cout << "SP=" << SP << " PC=" << PC << " ST=" << ST << " ";
+    for (size_t i = 0; i < REG.size(); i++)
+        cout << "R" << i << "=" << REG[i];
+    cout << endl;
 }
 
 // Atualiza os atributos do processo em ativo
@@ -53,9 +71,11 @@ void Processor::checkStartDate() {
 // alcancou o dead-line ou terminou o tempo de computacao
 void Processor::checkTerminated() {
     for (auto p : process_list) {
-        if ((time_counter > p->end_date) || (p->total_executed_time >= p->duration)) {
-            p->status = "terminated";
-        }
+        if (p->status != "terminated")
+            if ((time_counter > p->deadline) || (p->total_executed_time >= p->duration)) {
+                p->status = "terminated";
+                p->end_date = time_counter;
+            }
     }
 }
 
@@ -68,6 +88,26 @@ void Processor::printStatus() {
         else cout << "   ";
     }
     cout << '\n';
+}
+
+void Processor::printTimes() {
+    cout << " -=-=-=-=--=-=-=-=-=- Times -=-=-=-=-=-=-=-=-=-=-" << endl;
+    cout << "    -> Turn Around Time:" << endl;
+    for (auto p : process_list) {
+        cout << "         P" << p->id << " = " << (p->end_date - p->start_date) << endl;
+    }
+
+    cout << endl;
+
+    cout << "    -> Tempo medio de espera:" << endl;
+    for (auto p : process_list) {
+        cout << "         P" << p->id << " = " << p->wait_time << endl;
+    }
+
+    cout << endl;
+    cout << "    -> Numero total de trocas de contexto" << endl;
+    cout << "         " << preemption_counter << endl;
+    cout << " -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-" << endl;
 }
 
 // Escolha de qual algorismo executar
@@ -111,6 +151,7 @@ void Processor::run() {
             checkStartDate();
             checkTerminated();
 
+
             // 7. Caso todos os processos estiverem em "terminated" 
             //       -> Para a execucao
             bool flag = true;
@@ -126,16 +167,26 @@ void Processor::run() {
             // 9. Atualiza os atributos do processo em ativo
             updateActiveProcess(active_process);
 
+            for (auto p : process_list) {
+                if (p->status == "ready")
+                    p->wait_time++;
+            }
+
             // 10. Caso houver a troca de processo em ativa
             //        -> Atualiza os atributos do processo antigo
             if (old_process != active_process) {
+                preemption_counter++;
                 process_list[old_process]->current_executed_time = 0;
                 if (not (process_list[old_process]->status == "terminated"))
                     process_list[old_process]->status = "ready";
             }
 
             // 11. Simula a mudanca de contexto
-            changeContext();
+            changeContext(old_process, active_process);
+
+    
+            //printContext(); Para textar o gerenciamento de contexto
+
             // 12. Imprime os Status
             printStatus();
 
@@ -145,4 +196,6 @@ void Processor::run() {
         }
     }
     cout << " -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=" << endl;
+    cout << endl;
+    printTimes();
 }
