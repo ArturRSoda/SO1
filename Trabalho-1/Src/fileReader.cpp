@@ -10,12 +10,14 @@ FileReader::~FileReader() {
 }
 
 vector<parameters*> FileReader::readFile() {
-    int a, b, c;
-    while (file >> a >> b >> c) {
+    int a, b, c, d, e;
+    while (file >> a >> b >> c >> d >> e) {
         parameters* p = new parameters;
         p->data = a;
         p->duracao = b;
-        p->prioridade = c;
+        p->periodo = c;
+        p->deadline = d;
+        p->prioridade = e;
         pams.push_back(p);
     }
     return pams;

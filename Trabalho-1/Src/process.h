@@ -2,6 +2,7 @@
 #define processH
 
 #include <chrono>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <random>
@@ -10,16 +11,42 @@ using namespace std;
 
 class Process {
  public:
-    Process(int id_, int data_, int duracao_, int prioridade_);
-
-    int getId();
-
+    Process(int id_, int start_date_, int duration_, int period_, int deadline_, int prioridade_);
     void generateContext();
 
- //private:
+    int getId();
+    int getStartDate();
+    int getEndDate();
+    int getPeriod();
+    int getDeadline();
+    int getDuration();
+    int getPriority();
+    string getStatus();
+    int getCurrentExecutedTime();
+    int getTotalExecutedTime();
+    int getWaitTime();
+    uint64_t getSP();
+    uint64_t getPC();
+    uint64_t getST();
+    vector<uint64_t> getREG();
+
+    void setStartDate(int v);
+    void setEndDate(int v);
+    void setDeadLine(int v);
+    void setStatus(string v);
+    void setCurrentExecutedTime(int v);
+    void setTotalExecutedTime(int v);
+    void setWaitTime(int v);
+    void setSP(uint64_t v);
+    void setPC(uint64_t v);
+    void setST(uint64_t v);
+    void setREG(vector<uint64_t> v);
+
+ private:
     int id;
     int start_date;
     int end_date;
+    int period;
     int deadline;
     int duration;
     int priority;

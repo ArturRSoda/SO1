@@ -6,6 +6,8 @@
 struct parameters {
     int data;
     int duracao;
+    int periodo;
+    int deadline;
     int prioridade;
 };
 

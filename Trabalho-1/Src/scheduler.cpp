@@ -3,7 +3,7 @@
 // Construtor
 Scheduler::Scheduler(vector<Process*> process_list) {
     for (auto p : process_list) {
-        processID_vector.push_back(p->id);
+        processID_vector.push_back(p->getId());
     }
 }
 
@@ -13,10 +13,10 @@ void Scheduler::schedule(vector<Process*> process_list_) {
 
     switch (algorithm) {
         case 1:
-            return FCFS();
+            sort(&Scheduler::compareByStartDate);
             break;
         case 2:
-            return staticPrioritySchedule();
+            sort(&Scheduler::compareByPriority);
             break;
         default:
             printf("Error: algaritmo invalido! \n");
@@ -35,8 +35,7 @@ int Scheduler::getActiveProcess() {
 }
 
 // Ordena o vetor "processID_vector" de acordo com a funcao de comparacao passada
-// (bobble sort)
-void Scheduler::sort(bool (Scheduler::*func)(int, int)) {
+void Scheduler::sortVector(bool (Scheduler::*func)(int, int)) {
     bool swapped;
     for (size_t i = 0; i < processID_vector.size()-1; i++) {
         swapped = false;
@@ -54,17 +53,17 @@ void Scheduler::sort(bool (Scheduler::*func)(int, int)) {
 // Compara start date
 // Para passar a funcao "Scheduler::sort"
 bool Scheduler::compareByStartDate(int a, int b) {
-    return process_list[processID_vector[a]]->start_date > process_list[processID_vector[b]]->start_date;
+    return process_list[processID_vector[a]]->getStartDate() > process_list[processID_vector[b]]->getStartDate();
 }
 
 // Compara prioridade
 // Para passar a funcao "Scheduler::sort"
 bool Scheduler::compareByPriority(int a, int b) {
-    return process_list[processID_vector[a]]->priority < process_list[processID_vector[b]]->priority;
+    return process_list[processID_vector[a]]->getPriority() < process_list[processID_vector[b]]->getPriority();
 }
 
 // Escalona por "first come, first served"
-void Scheduler::FCFS() {
+void Scheduler::sort(bool (Scheduler::*func)(int, int)) {
     Process* process;                      // Processo a ser analizado
     vector<int> statusCreatedProcess = {}; // vetor para os processos que ainda nao ficaram em ready
     bool popped;                           // Para verificar se ainda ha algum processo em "terminated" ou "created"
@@ -77,15 +76,15 @@ void Scheduler::FCFS() {
             process = process_list[processID_vector[i]];
 
             // 3.1. Tira do vetor caso estiver "terminated"
-            if (process->status == "terminated") {
+            if (process->getStatus() == "terminated") {
                 processID_vector.erase(processID_vector.begin() + i);
                 popped = true;
                 break;
             }
             // 3.2. Tira do vertor caso estiver em "created",
             //      e Adiciona nos vetores dos processos que ainda estao em "created"
-            else if (process->status == "created") {
-                statusCreatedProcess.push_back(process->id);
+            else if (process->getStatus() == "created") {
+                statusCreatedProcess.push_back(process->getId());
                 processID_vector.erase(processID_vector.begin() + i);
                 popped = true;
                 break;
@@ -97,41 +96,10 @@ void Scheduler::FCFS() {
     }
     // 5. Ordena o "processID_vector" pelo start date,
     //    sem os processos que estao no estado "terminated" ou "created"   
-    sort(&Scheduler::compareByStartDate);
+    sortVector(func);
 
     // 6. Concatena os processos que ainda estao em "created" no final de "processID_vector"
     processID_vector.insert(processID_vector.end(), statusCreatedProcess.begin(), statusCreatedProcess.end());
 }
 
-
-// Escalona por prioridade estatica
-// Mesmos passos a passos de SCFS
-// A diferenca eh que para a funcao "Scheduler::sort" eh passado a funcao "Scheduler::compareByPriority"
-void Scheduler::staticPrioritySchedule() {
-    Process* process;    
-    vector<int> statusCreatedProcess = {};
-    bool popped;
-    while (1) {
-        popped = false;
-        for (size_t i = 0; i < processID_vector.size(); i++) {
-            process = process_list[processID_vector[i]];
-
-            if (process->status == "terminated") {
-                processID_vector.erase(processID_vector.begin() + i);
-                popped = true;
-                break;
-            }
-            else if (process->status == "created") {
-                statusCreatedProcess.push_back(process->id);
-                processID_vector.erase(processID_vector.begin() + i);
-                popped = true;
-                break;
-            }
-        }
-        if (not popped)
-            break;
-    }
-    sort(&Scheduler::compareByPriority);
-    processID_vector.insert(processID_vector.end(), statusCreatedProcess.begin(), statusCreatedProcess.end());
-}
 

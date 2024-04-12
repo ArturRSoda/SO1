@@ -18,6 +18,7 @@ class Scheduler {
     
  private:
 
+    void sortVector(bool (Scheduler::*func)(int,int));
     void sort(bool (Scheduler::*func)(int,int));
     bool compareByStartDate(int a, int b);
     bool compareByPriority(int a, int b);

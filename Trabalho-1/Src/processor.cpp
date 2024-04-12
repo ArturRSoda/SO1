@@ -22,7 +22,7 @@ Processor::~Processor() {
 void Processor::loadProcess(vector<parameters*> pams) {
     for (auto p : pams) {
         Process* process = new Process(id_count++, p->data, p->duracao,
-                                       p->prioridade);
+                                       p->periodo, p->deadline, p->prioridade);
         process_list.push_back(process);
     }
 }
@@ -32,17 +32,17 @@ void Processor::changeContext(int old_process, int active_process) {
     // Se nao for a primeira iteracao
     if (SP) {
         // Carraga contexto
-        process_list[old_process]->SP = SP;
-        process_list[old_process]->PC = PC;
-        process_list[old_process]->ST = ST;
-        process_list[old_process]->REG = REG;
+        process_list[old_process]->setSP(SP);
+        process_list[old_process]->setPC(PC);
+        process_list[old_process]->setST(ST);
+        process_list[old_process]->setREG(REG);
     }
 
     // Salva o contexto no processador
-    SP = process_list[active_process]->SP;
-    PC = process_list[active_process]->PC;
-    ST = process_list[active_process]->ST;
-    REG = process_list[active_process]->REG;
+    SP = process_list[active_process]->getSP();
+    PC = process_list[active_process]->getPC();
+    ST = process_list[active_process]->getST();
+    REG = process_list[active_process]->getREG();
 }
 
 void Processor::printContext() {
@@ -54,27 +54,30 @@ void Processor::printContext() {
 
 // Atualiza os atributos do processo em ativo
 void Processor::updateActiveProcess(int active_process) {
-    process_list[active_process]->status = "running";
-    process_list[active_process]->current_executed_time++;
-    process_list[active_process]->total_executed_time++;
+    int temp;
+    process_list[active_process]->setStatus("running");
+    temp = process_list[active_process]->getCurrentExecutedTime();
+    process_list[active_process]->setCurrentExecutedTime(temp+1);
+    temp = process_list[active_process]->getTotalExecutedTime();
+    process_list[active_process]->setTotalExecutedTime(temp+1);
 }
 
 // Confere o start date
 // Ou seja, confere se o processo pode passar de "created" para "ready"
 void Processor::checkStartDate() {
     for (auto p : process_list) 
-        if (time_counter == p->start_date)
-            p->status = "ready";
+        if (time_counter == p->getStartDate())
+            p->setStatus("ready");
 }
 
 // Confere se o processo ja terminou a execucao
 // alcancou o dead-line ou terminou o tempo de computacao
 void Processor::checkTerminated() {
     for (auto p : process_list) {
-        if (p->status != "terminated")
-            if ((time_counter > p->deadline) || (p->total_executed_time >= p->duration)) {
-                p->status = "terminated";
-                p->end_date = time_counter;
+        if (p->getStatus() != "terminated")
+            if ((time_counter > p->getDeadline()) || (p->getTotalExecutedTime() >= p->getDuration())) {
+                p->setStatus("terminated");
+                p->setEndDate(time_counter);
             }
     }
 }
@@ -83,25 +86,25 @@ void Processor::checkTerminated() {
 void Processor::printStatus() {
     printf("%7d-%-2d ", time_counter, time_counter+1);
     for (auto p : process_list) {
-        if (p->status == "ready") cout << "-- ";
-        else if (p->status == "running") cout << "## ";
+        if (p->getStatus() == "ready") cout << "-- ";
+        else if (p->getStatus() == "running") cout << "## ";
         else cout << "   ";
     }
     cout << '\n';
 }
 
-void Processor::printTimes() {
+void Processor::printTimes() { 
     cout << " -=-=-=-=--=-=-=-=-=- Times -=-=-=-=-=-=-=-=-=-=-" << endl;
     cout << "    -> Turn Around Time:" << endl;
     for (auto p : process_list) {
-        cout << "         P" << p->id << " = " << (p->end_date - p->start_date) << endl;
+        cout << "         P" << p->getId() << " = " << (p->getEndDate() - p->getStartDate()) << endl;
     }
 
     cout << endl;
 
     cout << "    -> Tempo medio de espera:" << endl;
     for (auto p : process_list) {
-        cout << "         P" << p->id << " = " << p->wait_time << endl;
+        cout << "         P" << p->getId() << " = " << p->getWaitTime() << endl;
     }
 
     cout << endl;
@@ -156,7 +159,7 @@ void Processor::run() {
             //       -> Para a execucao
             bool flag = true;
             for (auto p : process_list)
-                if (p->status != "terminated") flag = false;
+                if (p->getStatus() != "terminated") flag = false;
             if (flag) break;
 
             // 8. Escalona
@@ -167,18 +170,21 @@ void Processor::run() {
             // 9. Atualiza os atributos do processo em ativo
             updateActiveProcess(active_process);
 
+            int temp;
             for (auto p : process_list) {
-                if (p->status == "ready")
-                    p->wait_time++;
+                if (p->getStatus() == "ready") {
+                    temp = p->getWaitTime();
+                    p->setWaitTime(temp+1);
+                }
             }
 
             // 10. Caso houver a troca de processo em ativa
             //        -> Atualiza os atributos do processo antigo
             if (old_process != active_process) {
                 preemption_counter++;
-                process_list[old_process]->current_executed_time = 0;
-                if (not (process_list[old_process]->status == "terminated"))
-                    process_list[old_process]->status = "ready";
+                process_list[old_process]->setCurrentExecutedTime(0);
+                if (not (process_list[old_process]->getStatus() == "terminated"))
+                    process_list[old_process]->setStatus("ready");
             }
 
             // 11. Simula a mudanca de contexto
