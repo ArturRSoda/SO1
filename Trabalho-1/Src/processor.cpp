@@ -1,5 +1,7 @@
 #include "processor.h"
+#include "fileReader.h"
 #include <ctime>
+#include <ostream>
 
 // Construtor
 Processor::Processor(string file_name) {
@@ -19,11 +21,15 @@ Processor::~Processor() {
 }
 
 // Carrega a lista de processos
+//           lista de numero de instancias dos processos
+//           lista de deadlines perdidos
 void Processor::loadProcess(vector<parameters*> pams) {
     for (auto p : pams) {
         Process* process = new Process(id_count++, p->data, p->duracao,
                                        p->periodo, p->deadline, p->prioridade);
         process_list.push_back(process);
+        instances.push_back(0);
+        deadline_loss.push_back(0);
     }
 }
 
@@ -45,6 +51,7 @@ void Processor::changeContext(int old_process, int active_process) {
     REG = process_list[active_process]->getREG();
 }
 
+// Printa os contextos que estao no processador
 void Processor::printContext() {
     cout << "SP=" << SP << " PC=" << PC << " ST=" << ST << " ";
     for (size_t i = 0; i < REG.size(); i++)
@@ -54,8 +61,8 @@ void Processor::printContext() {
 
 // Atualiza os atributos do processo em ativo
 void Processor::updateActiveProcess(int active_process) {
-    int temp;
     process_list[active_process]->setStatus("running");
+    int temp;
     temp = process_list[active_process]->getCurrentExecutedTime();
     process_list[active_process]->setCurrentExecutedTime(temp+1);
     temp = process_list[active_process]->getTotalExecutedTime();
@@ -66,20 +73,68 @@ void Processor::updateActiveProcess(int active_process) {
 // Ou seja, confere se o processo pode passar de "created" para "ready"
 void Processor::checkStartDate() {
     for (auto p : process_list) 
-        if (time_counter == p->getStartDate())
+        if (time_counter == p->getStartDate()) {
             p->setStatus("ready");
+    }
 }
 
-// Confere se o processo ja terminou a execucao
-// alcancou o dead-line ou terminou o tempo de computacao
-void Processor::checkTerminated() {
+// confere se ja alcancou o tempo de computacao
+void Processor::checkComputionTime() {
     for (auto p : process_list) {
         if (p->getStatus() != "terminated")
-            if ((time_counter > p->getDeadline()) || (p->getTotalExecutedTime() >= p->getDuration())) {
+            if (p->getCurrentExecutedTime() == p->getDuration()) {
+                p->setCurrentExecutedTime(0);
                 p->setStatus("terminated");
                 p->setEndDate(time_counter);
+                instances[p->getId()]++;
             }
     }
+}
+
+// Confere o Deadline de todos
+void Processor::checkDeadline() {
+    for (auto p : process_list) {
+        // 1. Executa se for deadline
+        if (time_counter == p->getDeadline()) {
+            int id = p->getId();
+
+            // 2. Verifica se foi deadline perdido
+            if (p->getStatus() != "terminated") 
+                deadline_loss[id]++;
+
+            // 3. Cria o processo novamente
+            //    equanto nao alcancar o numero maximo de instancias
+            if (instances[id] < max_instances) {
+                // 3.1. Cria Nova instancia com as mesmas caracteristicas 
+                datas* data = p->getDatas();
+                Process* pr = process_list[id];
+                process_list.erase(process_list.begin()+id);
+
+                Process* new_process = new Process(id, data->creation_date, data->duration, data->period,
+                                               data->deadline, data->priority);
+                new_process->setTotalExecutedTime(data->total_executed_time);
+                new_process->setStartDate(pr->getStartDate());
+                new_process->setCurrentExecutedTime(0);
+                new_process->setWaitTime(data->wait_time);
+                new_process->setStatus("ready");
+                new_process->setStartDate(time_counter);
+                new_process->setDeadLine(time_counter + data->period);
+
+                delete pr;
+
+                if (static_cast<size_t>(id) < process_list.size())
+                    process_list.insert(process_list.begin()+id, new_process);
+                else
+                    process_list.push_back(new_process);
+            }
+        }
+    }
+}
+
+// Atualiza o deadline absoluto de todos
+void Processor::updateAbsDeadlines() {
+    for (auto p : process_list)
+        p->setAbsDeadLine(abs(p->getDeadline() - time_counter));
 }
 
 // Imprime os status na execucao
@@ -90,26 +145,39 @@ void Processor::printStatus() {
         else if (p->getStatus() == "running") cout << "## ";
         else cout << "   ";
     }
-    cout << '\n';
+
+    for (auto p : process_list) {
+        if (time_counter == p->getOldDeadline())
+            cout << "P" << p->getId()+1;
+        else
+            cout << "  ";
+    }
+    cout << endl;
 }
 
 void Processor::printTimes() { 
     cout << " -=-=-=-=--=-=-=-=-=- Times -=-=-=-=-=-=-=-=-=-=-" << endl;
     cout << "    -> Turn Around Time:" << endl;
     for (auto p : process_list) {
-        cout << "         P" << p->getId() << " = " << (p->getEndDate() - p->getStartDate()) << endl;
+        cout << "         P" << p->getId() << " = " << (p->getEndDate() - p->getCreationDate()) << endl;
     }
 
     cout << endl;
 
     cout << "    -> Tempo medio de espera:" << endl;
     for (auto p : process_list) {
-        cout << "         P" << p->getId() << " = " << p->getWaitTime() << endl;
+        cout << "         P" << p->getId()+1 << " = " << p->getWaitTime() << endl;
     }
 
     cout << endl;
     cout << "    -> Numero total de trocas de contexto" << endl;
     cout << "         " << preemption_counter << endl;
+
+    cout << endl;
+    cout << "    -> Numero de Deadlines perdidos para cada Processo:" << endl;
+    for (auto p : process_list) {
+        cout << "         P" << p->getId()+1 << " = " << deadline_loss[p->getId()] << endl;
+    }
     cout << " -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-" << endl;
 }
 
@@ -118,14 +186,14 @@ void Processor::chooseAlgorithm() {
     int option;
     cout << endl;
     cout << " -=-=- Escolha o Algoritmo de Escalonamento -=-=-" << endl;
-    cout << "      1 - First Come, First Served (FCFS)" << endl;
-    cout << "      2 - Escalonamento por prioridade estatica" << endl;
+    cout << "      1 - Rate Monotonic (RM)" << endl;
+    cout << "      2 - Earliest Deadline First (EDF)" << endl;
     cout << " -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-" << endl;
     cout << "R: ";
     cin >> option;
     cout << endl;
 
-    if ((option < 1) || (option > 3)) {
+    if ((option < 1) || (option > 2)) {
         cout << "Error: Opcao incorreta" << endl;
         exit(0);
     }
@@ -133,8 +201,17 @@ void Processor::chooseAlgorithm() {
     scheduler->defineAlgorithm(option);
 }
 
+// Escolhe o numero de criacoes de cada processo
+void Processor::chooseNumInstances() {
+    cout << " -=-=- Quantas vezes o processo deve terminar sua execucao? -=-=-" << endl;
+    cout << "R: ";
+    cin >> max_instances;
+}
+
 // Execucao
 void Processor::run() {
+    // 0. Escolhe o numero maximo de instancias
+    chooseNumInstances();
     // 1. Escolhe o algorismo
     chooseAlgorithm();
 
@@ -143,30 +220,34 @@ void Processor::run() {
     cout << "     TEMPO ";
     for (size_t i = 0; i < process_list.size(); i++)
         cout << 'P' << i+1 << ' ';
-    cout << '\n';
+    cout << "DEADLINES" << endl;
     
     // 3. Comeca o looping de execucao
-    //    So para quando todos processos estiverem em "terminated"
+    //    So para quando todos os processos terminarem de executar a quantidade desejada
     while (1) {
         // 5. Confere se deu 1 sec
         if (difftime(time(0), time_val) >= 1) {
-            // 6. Cofere o startdate e se terminou a execucao
+            // 6. Cofere o startdate, tempo de execucao, e a deadline
+            //    E atualiz todos os deadlines absolutos
             checkStartDate();
-            checkTerminated();
+            checkComputionTime();
+            checkDeadline();
+            updateAbsDeadlines();
 
-
-            // 7. Caso todos os processos estiverem em "terminated" 
+            // 7. Caso todos os precessos terminarem a execucao na quantidade desejada
             //       -> Para a execucao
             bool flag = true;
-            for (auto p : process_list)
-                if (p->getStatus() != "terminated") flag = false;
+            for (auto v : instances) {
+                if (v < max_instances) {
+                    flag = false;
+                }
+            }
             if (flag) break;
 
             // 8. Escalona
             old_process = scheduler->getActiveProcess();
             scheduler->schedule(process_list);
             active_process = scheduler->getActiveProcess();
-
             // 9. Atualiza os atributos do processo em ativo
             updateActiveProcess(active_process);
 
@@ -182,7 +263,6 @@ void Processor::run() {
             //        -> Atualiza os atributos do processo antigo
             if (old_process != active_process) {
                 preemption_counter++;
-                process_list[old_process]->setCurrentExecutedTime(0);
                 if (not (process_list[old_process]->getStatus() == "terminated"))
                     process_list[old_process]->setStatus("ready");
             }

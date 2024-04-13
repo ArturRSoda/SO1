@@ -13,10 +13,10 @@ void Scheduler::schedule(vector<Process*> process_list_) {
 
     switch (algorithm) {
         case 1:
-            sort(&Scheduler::compareByStartDate);
+            sort(&Scheduler::compareByPriority);
             break;
         case 2:
-            sort(&Scheduler::compareByPriority);
+            sort(&Scheduler::compareByAbsDeadline);
             break;
         default:
             printf("Error: algaritmo invalido! \n");
@@ -35,7 +35,9 @@ int Scheduler::getActiveProcess() {
 }
 
 // Ordena o vetor "processID_vector" de acordo com a funcao de comparacao passada
+// (bobble sort)
 void Scheduler::sortVector(bool (Scheduler::*func)(int, int)) {
+    if (not processID_vector.size()) return;
     bool swapped;
     for (size_t i = 0; i < processID_vector.size()-1; i++) {
         swapped = false;
@@ -50,10 +52,10 @@ void Scheduler::sortVector(bool (Scheduler::*func)(int, int)) {
     }
 }
 
-// Compara start date
+// Compara os deadlines absolutos
 // Para passar a funcao "Scheduler::sort"
-bool Scheduler::compareByStartDate(int a, int b) {
-    return process_list[processID_vector[a]]->getStartDate() > process_list[processID_vector[b]]->getStartDate();
+bool Scheduler::compareByAbsDeadline(int a, int b) {
+    return process_list[processID_vector[a]]->getAbsDeadline() > process_list[processID_vector[b]]->getAbsDeadline();
 }
 
 // Compara prioridade
@@ -62,44 +64,18 @@ bool Scheduler::compareByPriority(int a, int b) {
     return process_list[processID_vector[a]]->getPriority() < process_list[processID_vector[b]]->getPriority();
 }
 
-// Escalona por "first come, first served"
+// Escalona
 void Scheduler::sort(bool (Scheduler::*func)(int, int)) {
-    Process* process;                      // Processo a ser analizado
-    vector<int> statusCreatedProcess = {}; // vetor para os processos que ainda nao ficaram em ready
-    bool popped;                           // Para verificar se ainda ha algum processo em "terminated" ou "created"
-
-    // 1. Looping que roda enquando houver processo em "terminated" ou "created"
-    while (1) {
-        popped = false;
-        // 2. Passa por todos os processos referentes ao ID de "processID_vector"
-        for (size_t i = 0; i < processID_vector.size(); i++) {
-            process = process_list[processID_vector[i]];
-
-            // 3.1. Tira do vetor caso estiver "terminated"
-            if (process->getStatus() == "terminated") {
-                processID_vector.erase(processID_vector.begin() + i);
-                popped = true;
-                break;
-            }
-            // 3.2. Tira do vertor caso estiver em "created",
-            //      e Adiciona nos vetores dos processos que ainda estao em "created"
-            else if (process->getStatus() == "created") {
-                statusCreatedProcess.push_back(process->getId());
-                processID_vector.erase(processID_vector.begin() + i);
-                popped = true;
-                break;
-            }
-        }
-        // 4. Para o looping caso nao houver nenhum processo em "terminated" ou "created"
-        if (not popped)
-            break;
+    vector<int> temp = {}; // vetor para os que estao prontos ou executando
+    
+    for (auto p : process_list) {
+        if ((p->getStatus() != "terminated") && (p->getStatus() != "created"))
+            temp.push_back(p->getId());
     }
-    // 5. Ordena o "processID_vector" pelo start date,
-    //    sem os processos que estao no estado "terminated" ou "created"   
-    sortVector(func);
 
-    // 6. Concatena os processos que ainda estao em "created" no final de "processID_vector"
-    processID_vector.insert(processID_vector.end(), statusCreatedProcess.begin(), statusCreatedProcess.end());
+    processID_vector = temp;
+
+    sortVector(func);
 }
 
 

@@ -20,11 +20,8 @@ class Scheduler {
 
     void sortVector(bool (Scheduler::*func)(int,int));
     void sort(bool (Scheduler::*func)(int,int));
-    bool compareByStartDate(int a, int b);
+    bool compareByAbsDeadline(int a, int b);
     bool compareByPriority(int a, int b);
-
-    void FCFS();
-    void staticPrioritySchedule();
 
     vector<int> processID_vector;
     vector<Process*> process_list;

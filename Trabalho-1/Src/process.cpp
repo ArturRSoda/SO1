@@ -2,15 +2,19 @@
 
 Process::Process(int id_, int start_date_, int duration_, int period_, int deadline_, int priority_) {
     id = id_;
+    creation_date = start_date_;
     start_date = start_date_;
     duration = duration_;
     period = period_;
+    old_deadline = deadline_;
+    abs_deadline = abs(deadline_ - start_date_);
     deadline = deadline_;
     priority = priority_;
     status = "created";
     current_executed_time = 0;
     total_executed_time = 0;
     wait_time = 0;
+    creation_date = start_date;
     generateContext();
 }
 
@@ -26,8 +30,28 @@ void Process::generateContext() {
         REG.push_back(dis(gen));
 }
 
+datas* Process::getDatas() {
+    datas* data = new datas;
+    data->old_deadline = old_deadline;
+    data->creation_date = creation_date;
+    data->start_date = start_date;
+    data->duration = duration;
+    data->period = period;
+    data->deadline = deadline;
+    data->abs_deadline = abs_deadline;
+    data->priority = priority;
+    data->current_executed_time = current_executed_time;
+    data->total_executed_time = total_executed_time;
+    data->wait_time = wait_time;
+    return data;
+}
+
 int Process::getId() {
     return id;
+}
+
+int Process::getCreationDate() {
+    return creation_date;
 }
 
 int Process::getStartDate() {
@@ -42,8 +66,16 @@ int Process::getPeriod() {
     return period;
 }
 
+int Process::getOldDeadline() {
+    return old_deadline;
+}
+
 int Process::getDeadline() {
     return deadline;
+}
+
+int Process::getAbsDeadline() {
+    return abs_deadline;
 }
 
 int Process::getDuration() {
@@ -94,8 +126,16 @@ void Process::setEndDate(int v) {
     end_date = v;
 }
 
+void Process::setOldDeadLine(int v) {
+    old_deadline = v;
+}
+
 void Process::setDeadLine(int v) {
     deadline = v;
+}
+
+void Process::setAbsDeadLine(int v) {
+    abs_deadline = v;
 }
 
 void Process::setStatus(string v) {

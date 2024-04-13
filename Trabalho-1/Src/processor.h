@@ -18,12 +18,14 @@ class Processor {
     void printContext();
     void changeContext(int old_process, int active_process);
     void checkStartDate();
-    void checkTerminated();
+    void checkComputionTime();
+    void checkDeadline();
     void printStatus();
     void updateActiveProcess(int active_process);
+    void updateAbsDeadlines();
     void chooseAlgorithm();
+    void chooseNumInstances();
     void printTimes();
-
 
     int id_count = 0;
     int preemption_counter = 0;
@@ -40,6 +42,9 @@ class Processor {
     int context_change_counter = 0;
     time_t time_val = time(0);
     int time_counter = 0;
+    int max_instances;
+    vector<int> instances;
+    vector<int> deadline_loss;
 };
 
 #endif
