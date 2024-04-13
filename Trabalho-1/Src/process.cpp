@@ -30,22 +30,6 @@ void Process::generateContext() {
         REG.push_back(dis(gen));
 }
 
-datas* Process::getDatas() {
-    datas* data = new datas;
-    data->old_deadline = old_deadline;
-    data->creation_date = creation_date;
-    data->start_date = start_date;
-    data->duration = duration;
-    data->period = period;
-    data->deadline = deadline;
-    data->abs_deadline = abs_deadline;
-    data->priority = priority;
-    data->current_executed_time = current_executed_time;
-    data->total_executed_time = total_executed_time;
-    data->wait_time = wait_time;
-    return data;
-}
-
 int Process::getId() {
     return id;
 }

@@ -106,19 +106,18 @@ void Processor::checkDeadline() {
             //    equanto nao alcancar o numero maximo de instancias
             if (instances[id] < max_instances) {
                 // 3.1. Cria Nova instancia com as mesmas caracteristicas 
-                datas* data = p->getDatas();
                 Process* pr = process_list[id];
                 process_list.erase(process_list.begin()+id);
 
-                Process* new_process = new Process(id, data->creation_date, data->duration, data->period,
-                                               data->deadline, data->priority);
-                new_process->setTotalExecutedTime(data->total_executed_time);
+                Process* new_process = new Process(id, pr->getCreationDate(), pr->getDuration(),
+                                                   pr->getPeriod(), pr->getDeadline(), pr->getPriority());
+                new_process->setTotalExecutedTime(pr->getTotalExecutedTime());
                 new_process->setStartDate(pr->getStartDate());
                 new_process->setCurrentExecutedTime(0);
-                new_process->setWaitTime(data->wait_time);
+                new_process->setWaitTime(pr->getWaitTime());
                 new_process->setStatus("ready");
                 new_process->setStartDate(time_counter);
-                new_process->setDeadLine(time_counter + data->period);
+                new_process->setDeadLine(time_counter + pr->getPeriod());
 
                 delete pr;
 

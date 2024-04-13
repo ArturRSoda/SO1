@@ -11,25 +11,10 @@
 
 using namespace std;
 
-struct datas {
-    int creation_date;
-    int start_date;
-    int duration;
-    int period;
-    int old_deadline;
-    int deadline;
-    int priority;
-    int current_executed_time;
-    int total_executed_time;
-    int wait_time;
-    int abs_deadline;
-};
-
 class Process {
  public:
     Process(int id_, int start_date_, int duration_, int period_, int deadline_, int prioridade_);
     void generateContext();
-    datas* getDatas();
 
     int getId();
     int getCreationDate();
