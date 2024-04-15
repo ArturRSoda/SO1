@@ -86,6 +86,9 @@ void Processor::checkComputionTime() {
                 p->setCurrentExecutedTime(0);
                 p->setStatus("terminated");
                 p->setEndDate(time_counter);
+                vector<int> new_turn_around_time = p->getTurnAroundTime();
+                new_turn_around_time.push_back(abs(time_counter - p->getStartDate()));
+                p->setTurnAroundTime(new_turn_around_time);
                 instances[p->getId()]++;
             }
     }
@@ -99,8 +102,13 @@ void Processor::checkDeadline() {
             int id = p->getId();
 
             // 2. Verifica se foi deadline perdido
-            if (p->getStatus() != "terminated") 
+            if (p->getStatus() != "terminated") {
                 deadline_loss[id]++;
+                instances[id]++;
+                vector<int> new_turn_around_time = p->getTurnAroundTime();
+                new_turn_around_time.push_back(abs(time_counter - p->getStartDate()));
+                p->setTurnAroundTime(new_turn_around_time);
+            }
 
             // 3. Cria o processo novamente
             //    equanto nao alcancar o numero maximo de instancias
@@ -109,15 +117,14 @@ void Processor::checkDeadline() {
                 Process* pr = process_list[id];
                 process_list.erase(process_list.begin()+id);
 
-                Process* new_process = new Process(id, pr->getCreationDate(), pr->getDuration(),
+                Process* new_process = new Process(id, time_counter, pr->getDuration(),
                                                    pr->getPeriod(), pr->getDeadline(), pr->getPriority());
+                new_process->setOldDeadLine(pr->getDeadline());
+                new_process->setTurnAroundTime(pr->getTurnAroundTime());
                 new_process->setTotalExecutedTime(pr->getTotalExecutedTime());
-                new_process->setStartDate(pr->getStartDate());
                 new_process->setCurrentExecutedTime(0);
                 new_process->setWaitTime(pr->getWaitTime());
                 new_process->setStatus("ready");
-                new_process->setStartDate(time_counter);
-                new_process->setDeadLine(time_counter + pr->getPeriod());
 
                 delete pr;
 
@@ -145,20 +152,36 @@ void Processor::printStatus() {
         else cout << "   ";
     }
 
+    cout << "| ";
+
     for (auto p : process_list) {
         if (time_counter == p->getOldDeadline())
             cout << "P" << p->getId()+1;
         else
             cout << "  ";
     }
+
+    cout << "  | ";
+
+    for (auto i : process_list) {
+        if (instances[i->getId()] <= max_instances)
+            printf("%-2d ", instances[i->getId()]);
+        else
+            printf("%-2d ", max_instances);
+    }
     cout << endl;
+
 }
 
 void Processor::printTimes() { 
     cout << " -=-=-=-=--=-=-=-=-=- Times -=-=-=-=-=-=-=-=-=-=-" << endl;
     cout << "    -> Turn Around Time:" << endl;
     for (auto p : process_list) {
-        cout << "         P" << p->getId() << " = " << (p->getEndDate() - p->getCreationDate()) << endl;
+        cout << "         P" << p->getId()+1 << " = ";
+        cout << "[";
+        for (auto t : p->getTurnAroundTime())
+             cout << t << ",";
+        cout << "]" << endl;
     }
 
     cout << endl;
@@ -216,10 +239,16 @@ void Processor::run() {
 
     // 2. Imprime o cabecario
     cout << " -=-=-=-=-=-=-=-=-=- Execucao -=-=-=-=-=-=-=-=-=-" << endl;
+    cout << "                                     INSTANCIAS" << endl;
     cout << "     TEMPO ";
     for (size_t i = 0; i < process_list.size(); i++)
         cout << 'P' << i+1 << ' ';
-    cout << "DEADLINES" << endl;
+    cout << "| ";
+    cout << "DEADLINES ";
+    cout << "| ";
+    for (size_t i = 0; i < process_list.size(); i++)
+        cout << 'P' << i+1 << ' ';
+    cout << endl;
     
     // 3. Comeca o looping de execucao
     //    So para quando todos os processos terminarem de executar a quantidade desejada

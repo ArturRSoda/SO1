@@ -17,19 +17,19 @@ class Process {
     void generateContext();
 
     int getId();
-    int getCreationDate();
     int getStartDate();
     int getEndDate();
     int getPeriod();
-    int getOldDeadline();
     int getDeadline();
     int getAbsDeadline();
+    int getOldDeadline();
     int getDuration();
     int getPriority();
     string getStatus();
     int getCurrentExecutedTime();
     int getTotalExecutedTime();
     int getWaitTime();
+    vector<int> getTurnAroundTime();
     uint64_t getSP();
     uint64_t getPC();
     uint64_t getST();
@@ -38,8 +38,8 @@ class Process {
     void setStartDate(int v);
     void setEndDate(int v);
     void setDeadLine(int v);
-    void setOldDeadLine(int v);
     void setAbsDeadLine(int v);
+    void setOldDeadLine(int v);
     void setStatus(string v);
     void setCurrentExecutedTime(int v);
     void setTotalExecutedTime(int v);
@@ -48,6 +48,7 @@ class Process {
     void setPC(uint64_t v);
     void setST(uint64_t v);
     void setREG(vector<uint64_t> v);
+    void setTurnAroundTime(vector<int> v);
 
  private:
     int id;
@@ -64,6 +65,7 @@ class Process {
     int current_executed_time;
     int total_executed_time;
     int wait_time;
+    vector<int> turn_around_time;
 
     uint64_t SP;
     uint64_t PC;
