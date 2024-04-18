@@ -83,12 +83,19 @@ void Processor::checkComputionTime() {
     for (auto p : process_list) {
         if (p->getStatus() != "terminated")
             if (p->getCurrentExecutedTime() == p->getDuration()) {
-                p->setCurrentExecutedTime(0);
-                p->setStatus("terminated");
-                p->setEndDate(time_counter);
+
                 vector<int> new_turn_around_time = p->getTurnAroundTime();
                 new_turn_around_time.push_back(abs(time_counter - p->getStartDate()));
                 p->setTurnAroundTime(new_turn_around_time);
+
+                vector<int> new_wait_time_vector = p->getWaitTimeVector();
+                new_wait_time_vector.push_back(p->getWaitTime());
+                p->setWaitTimeVector(new_wait_time_vector);
+
+                p->setWaitTime(0);
+                p->setCurrentExecutedTime(0);
+                p->setStatus("terminated");
+                p->setEndDate(time_counter);
                 instances[p->getId()]++;
             }
     }
@@ -105,9 +112,14 @@ void Processor::checkDeadline() {
             if (p->getStatus() != "terminated") {
                 deadline_loss[id]++;
                 instances[id]++;
+
                 vector<int> new_turn_around_time = p->getTurnAroundTime();
                 new_turn_around_time.push_back(abs(time_counter - p->getStartDate()));
                 p->setTurnAroundTime(new_turn_around_time);
+
+                vector<int> new_wait_time_vector = p->getWaitTimeVector();
+                new_wait_time_vector.push_back(p->getWaitTime());
+                p->setWaitTimeVector(new_wait_time_vector);
             }
 
             // 3. Cria o processo novamente
@@ -121,9 +133,9 @@ void Processor::checkDeadline() {
                                                    pr->getPeriod(), pr->getDeadline(), pr->getPriority());
                 new_process->setOldDeadLine(pr->getDeadline());
                 new_process->setTurnAroundTime(pr->getTurnAroundTime());
+                new_process->setWaitTimeVector(pr->getWaitTimeVector());
                 new_process->setTotalExecutedTime(pr->getTotalExecutedTime());
                 new_process->setCurrentExecutedTime(0);
-                new_process->setWaitTime(pr->getWaitTime());
                 new_process->setStatus("ready");
 
                 delete pr;
@@ -173,25 +185,53 @@ void Processor::printStatus() {
 
 }
 
+
 void Processor::printTimes() { 
     cout << " -=-=-=-=--=-=-=-=-=- Times -=-=-=-=-=-=-=-=-=-=-" << endl;
-    cout << "    -> Turn Around Time:" << endl;
+    int sum;
+    float media;
+    int total_sum;
+    vector<int> arr;
+
+    cout << "    -> Turn Around Time (Tempo de resposta medio):" << endl;
+    total_sum = 0;
     for (auto p : process_list) {
         cout << "         P" << p->getId()+1 << " = ";
-        cout << "[";
-        for (auto t : p->getTurnAroundTime())
-             cout << t << ",";
-        cout << "]" << endl;
+        // cout << "[";
+        sum = 0;
+        arr = p->getTurnAroundTime();
+        for (auto t : arr) {
+            //cout << t << ",";
+            sum += t;
+        }
+        // cout << "] ";
+        media = sum/static_cast<float>(arr.size());
+        total_sum += media;
+        printf("%.1f \n", media);
     }
+    printf("         media = %.1f \n", total_sum/static_cast<float>(process_list.size()));
 
     cout << endl;
 
-    cout << "    -> Tempo medio de espera:" << endl;
+    cout << "    -> Wait Time (Tempo medio de espera):" << endl;
+    total_sum = 0;
     for (auto p : process_list) {
-        cout << "         P" << p->getId()+1 << " = " << p->getWaitTime() << endl;
+        cout << "         P" << p->getId()+1 << " = ";
+        // cout << "[";
+        sum = 0;
+        arr = p->getWaitTimeVector();
+        for (auto t : arr) {
+            // cout << t << ",";
+            sum += t;
+        }
+        // cout << "] ";
+        media = sum/static_cast<float>(arr.size());
+        total_sum += media;
+        printf("%.1f \n", media);
     }
-
+    printf("         media = %.1f \n", total_sum/static_cast<float>(process_list.size()));
     cout << endl;
+
     cout << "    -> Numero total de trocas de contexto" << endl;
     cout << "         " << preemption_counter << endl;
 
@@ -279,13 +319,6 @@ void Processor::run() {
             // 9. Atualiza os atributos do processo em ativo
             updateActiveProcess(active_process);
 
-            int temp;
-            for (auto p : process_list) {
-                if (p->getStatus() == "ready") {
-                    temp = p->getWaitTime();
-                    p->setWaitTime(temp+1);
-                }
-            }
 
             // 10. Caso houver a troca de processo em ativa
             //        -> Atualiza os atributos do processo antigo
@@ -293,6 +326,15 @@ void Processor::run() {
                 preemption_counter++;
                 if (not (process_list[old_process]->getStatus() == "terminated"))
                     process_list[old_process]->setStatus("ready");
+            }
+
+            // 10.1 Aumeta o tempo de espera caso necessario
+            int temp;
+            for (auto p : process_list) {
+                if (p->getStatus() == "ready") {
+                    temp = p->getWaitTime();
+                    p->setWaitTime(temp+1);
+                }
             }
 
             // 11. Simula a mudanca de contexto

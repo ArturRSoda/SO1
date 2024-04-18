@@ -84,6 +84,10 @@ vector<int> Process::getTurnAroundTime() {
     return turn_around_time;
 }
 
+vector<int> Process::getWaitTimeVector() {
+    return wait_time_vector;
+}
+
 uint64_t Process::getSP() {
     return SP;
 }
@@ -154,5 +158,9 @@ void Process::setREG(vector<uint64_t> v) {
 
 void Process::setTurnAroundTime(vector<int> v) {
     turn_around_time = v;
+}
+
+void Process::setWaitTimeVector(vector<int> v) {
+    wait_time_vector = v;
 }
 

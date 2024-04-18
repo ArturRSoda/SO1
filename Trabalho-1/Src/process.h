@@ -29,6 +29,7 @@ class Process {
     int getCurrentExecutedTime();
     int getTotalExecutedTime();
     int getWaitTime();
+    vector<int> getWaitTimeVector();
     vector<int> getTurnAroundTime();
     uint64_t getSP();
     uint64_t getPC();
@@ -49,6 +50,7 @@ class Process {
     void setST(uint64_t v);
     void setREG(vector<uint64_t> v);
     void setTurnAroundTime(vector<int> v);
+    void setWaitTimeVector(vector<int> v);
 
  private:
     int id;
@@ -66,6 +68,7 @@ class Process {
     int total_executed_time;
     int wait_time;
     vector<int> turn_around_time;
+    vector<int> wait_time_vector;
 
     uint64_t SP;
     uint64_t PC;
