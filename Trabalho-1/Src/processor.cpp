@@ -167,7 +167,7 @@ void Processor::printStatus() {
     cout << "| ";
 
     for (auto p : process_list) {
-        if (time_counter == p->getOldDeadline())
+        if ((time_counter == p->getOldDeadline()) || time_counter == p->getDeadline())
             cout << "P" << p->getId()+1;
         else
             cout << "  ";
