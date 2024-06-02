@@ -1,6 +1,6 @@
 # ----- Variaveis -----
 	# Target
-TARGET = result
+TARGET = simulador
 	# Compilador
 CC = g++
 	# Flags

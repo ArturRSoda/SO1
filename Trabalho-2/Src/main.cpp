@@ -3,12 +3,17 @@
 
 using namespace std;
 
+struct pedidoStruct {
+    string pedido;
+    int bytes;
+    int id;
+};
+
 string* split(string line, char sep) {
     static string arr[3];
     int k = 0;
     string temp = "";
         
-
     for (int i = 0; i < static_cast<int>(line.size()); i++) {
         cout << (line[i] != sep) << endl;
         if (line[i] != sep) {
@@ -22,6 +27,32 @@ string* split(string line, char sep) {
 
     return arr;
 }
+
+pedidoStruct* loadPedidos() {
+    pedidoStruct* pedidos = new pedidoStruct[4];
+    int i = 0;
+
+    string line;
+    getline(cin, line);
+    cout << endl;
+    while (getline(cin, line)) {
+        pedidos[i].pedido = line[0];
+
+        line.erase(0, line.find(" ")+1);
+
+        if (!pedidos[i].pedido.compare("A")) {
+            pedidos[i].bytes = stoi(line.substr(0, line.find(" ")));
+            line.erase(0, line.find(" ")+1);
+        }
+
+        pedidos[i].id = stoi(line);
+
+        i++;
+    }
+
+    return pedidos;
+}
+
 
 int main() {
 
@@ -40,31 +71,14 @@ int main() {
     cout << "Tamanho de bloco minimo..: " << tam_bloco_aloc_bytes << endl;
     cout << "algoritmo de alocacao....: " << alg_aloc << endl;
 
-    string pedido;
-    int qtd_bytes;
-    int id;
+    pedidoStruct* pedidos = loadPedidos();
 
-    string line;
-    getline(cin, line);
-    cout << endl;
-    while (getline(cin, line)) {
-        pedido = line[0];
-
-        line.erase(0, line.find(" ")+1);
-
-        if (!pedido.compare("A")) {
-            qtd_bytes = stoi(line.substr(0, line.find(" ")));
-            line.erase(0, line.find(" ")+1);
-        }
-
-        id = stoi(line);
-
-        cout << "pedido = " << pedido << endl;
-        if (!pedido.compare("A")) cout << "qtd bytes = " << qtd_bytes << endl;
-        cout << "id = " << id << endl;
+    for (int i = 0; i < 4; i++) {
+        cout << "pedido = " << pedidos[i].pedido << endl;
+        if (!pedidos[i].pedido.compare("A")) cout << "qtd bytes = " << pedidos[i].bytes << endl;
+        cout << "id = " << pedidos[i].id << endl;
         cout << endl;
     }
-
 
     return 0;
 }
