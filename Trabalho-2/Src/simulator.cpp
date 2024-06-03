@@ -86,7 +86,7 @@ int Simulator::nextFitDll(int size) {
     int cur;
     element elem;
     while (true) {
-        if (next_fit_pointer == mem_list_dll.size())
+        if (next_fit_pointer >= mem_list_dll.size())
             next_fit_pointer = 0;
 
         elem = mem_list_dll.at(next_fit_pointer);
