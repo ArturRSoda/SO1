@@ -43,6 +43,7 @@ class Simulator {
 
     void printDll();
     void printStart();
+    void printState();
 
     size_t next_fit_pointer;
 

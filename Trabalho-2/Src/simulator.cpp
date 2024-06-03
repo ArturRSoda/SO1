@@ -1,7 +1,7 @@
 #include "simulator.h"
+#include "bitset.h"
 #include "doubly_linked_list.h"
 #include "fileReader.h"
-#include <iterator>
 
 Simulator::Simulator(parameters* parameters_) {
     parameters* p = parameters_;
@@ -11,10 +11,12 @@ Simulator::Simulator(parameters* parameters_) {
     element e = {0, mem_size/block_size, 0};
     mem_list_dll.push_back(e);
     start = new int[p->requests.size()+1];
+    mem_list_bit = new Bitset(mem_size/block_size);
 }
 
 Simulator::~Simulator() {
     delete start;
+    delete mem_list_bit;
 }
 
 void Simulator::loadParameters(parameters* p) {
@@ -136,7 +138,9 @@ void Simulator::run() {
         printDll();
         printStart();
         cout << endl;
+
     }
+    printState();
 }
 
 void Simulator::printDll() {
@@ -146,6 +150,18 @@ void Simulator::printDll() {
         cout << mem_list_dll.at(i).status << " -> ";
     }
     cout << endl;
+}
+
+void Simulator::printState() {
+    if (manager == 1) {
+        cout << mem_list_bit->value() << endl;
+    } else {
+        element elem;
+        for (size_t i = 0; i < mem_list_dll.size(); i++) {
+            elem = mem_list_dll.at(i);
+            cout << elem.size*block_size << " " << elem.status << endl;
+        }
+    }
 }
 
 void Simulator::printStart() {
