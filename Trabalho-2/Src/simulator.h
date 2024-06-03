@@ -46,6 +46,7 @@ class Simulator {
     void printState();
 
     size_t next_fit_pointer;
+    int last_allocation_start;
 
     int manager;
     int alloc_alg;

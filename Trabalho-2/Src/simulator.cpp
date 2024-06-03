@@ -8,6 +8,8 @@ Simulator::Simulator(parameters* parameters_) {
     loadParameters(p);
 
     next_fit_pointer = 0;
+    last_allocation_start = 0;
+
     element e = {0, mem_size/block_size, 0};
     mem_list_dll.push_back(e);
     start = new int[p->requests.size()+1];
@@ -41,7 +43,7 @@ void Simulator::allocDll(int size, int id) {
         }
     }
 
-    next_fit_pointer = cur;
+    last_allocation_start = cur_start;
 
     element old_seg = mem_list_dll.at(cur);
     mem_list_dll.remove(old_seg);
@@ -56,12 +58,34 @@ void Simulator::allocDll(int size, int id) {
     }
 }
 
-//todo
 void Simulator::delDll(int id) {
+    element cur_seg, back_seg, front_seg, free_seg;
     int cur_start = start[id];
     for (size_t i = 0; i < mem_list_dll.size(); i++) {
-        if (cur_start == mem_list_dll.at(i).start) {
+        cur_seg = mem_list_dll.at(i);
+        if (cur_start == cur_seg.start) {
+            if (i != 0) {
+                back_seg = mem_list_dll.at(i-1);
+            }
+
+            if (i != (mem_list_dll.size()-1)) {
+                front_seg = mem_list_dll.at(i+1);
+            }
+
+            free_seg.start = ((i != 0) && (back_seg.status == 0)) ? back_seg.start : cur_seg.start;
+
+            free_seg.size = cur_seg.size;
+            free_seg.size += ((i != 0) && (back_seg.status == 0)) ? back_seg.size : 0;
+            free_seg.size += ((i != (mem_list_dll.size()-1)) && (front_seg.status == 0)) ? front_seg.size : 0;
+
+            free_seg.status = 0;
+             
             mem_list_dll.pop(i);
+            if ((i != 0) && (back_seg.status == 0)) mem_list_dll.remove(back_seg);
+            if ((i != (mem_list_dll.size()-1)) && (front_seg.status == 0)) mem_list_dll.remove(front_seg);
+
+            mem_list_dll.insert_sorted(free_seg);
+
             return;
         }
     }
@@ -85,6 +109,12 @@ int Simulator::firstFitDll(int size) {
 int Simulator::nextFitDll(int size) {
     int cur;
     element elem;
+
+    for (size_t i = 0; i < mem_list_dll.size(); i++) {
+        if (mem_list_dll.at(i).start == last_allocation_start)
+            next_fit_pointer = i;
+    }
+
     while (true) {
         if (next_fit_pointer >= mem_list_dll.size())
             next_fit_pointer = 0;

@@ -1,5 +1,7 @@
 #include "doubly_linked_list.h"
 #include <unistd.h>
+#include <iostream>
+
 
 template<typename T>
 DoublyLinkedList<T>::DoublyLinkedList() {
@@ -16,6 +18,7 @@ DoublyLinkedList<T>::~DoublyLinkedList() {
 
 template<typename T>
 void DoublyLinkedList<T>::clear() {
+
     while (!empty()) {
         pop_front();
     }
