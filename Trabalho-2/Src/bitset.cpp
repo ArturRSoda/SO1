@@ -11,8 +11,10 @@ Bitset::Bitset(int size_) {
     qtd_one = 0;
     size = size_;
 }
+ Bitset::~Bitset() {}
 
 void Bitset::fix(int pos) {
+    if (pos < 0 || pos >= size) throw std::out_of_range("out of range");
     if (bitset[pos] == '0') {
         qtd_one++;
         qtd_zero--;
@@ -22,7 +24,9 @@ void Bitset::fix(int pos) {
     fliped_bitset[pos] = '0';
 }
 
+
 void Bitset::unfix(int pos) {
+    if (pos < 0 || pos >= size) throw std::out_of_range("out of range");
     if (bitset[pos] == '1') {
         qtd_zero++;
         qtd_one--;
@@ -39,7 +43,7 @@ void Bitset::flip() {
 
     int t = qtd_one;
     qtd_one = qtd_zero;
-    qtd_zero = qtd_one;
+    qtd_zero = t;
 }
 
 bool Bitset::check() {

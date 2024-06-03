@@ -1,4 +1,13 @@
 #include "doubly_linked_list.h"
+#include <unistd.h>
+
+template<typename T>
+DoublyLinkedList<T>::DoublyLinkedList() {
+    head = nullptr;
+    tail = nullptr;
+
+    size_ = 0;
+}
 
 template<typename T>
 DoublyLinkedList<T>::~DoublyLinkedList() {
@@ -7,7 +16,9 @@ DoublyLinkedList<T>::~DoublyLinkedList() {
 
 template<typename T>
 void DoublyLinkedList<T>::clear() {
-    while (size_ > 0) pop_front();
+    while (!empty()) {
+        pop_front();
+    }
 }
 
 template<typename T>
@@ -110,7 +121,7 @@ T DoublyLinkedList<T>::pop(std::size_t index) {
         return pop_front();
     }
 
-    if (index == size_) {
+    if (index == size_-1) {
         return pop_back();
     }
 
@@ -198,7 +209,7 @@ void DoublyLinkedList<T>::remove(const T& data) {
 
 template<typename T>
 bool DoublyLinkedList<T>::empty() const{
-    return !static_cast<bool>(size_);
+    return (size_ == 0);
 }
 
 template<typename T>
@@ -263,3 +274,40 @@ template<typename T>
 std::size_t DoublyLinkedList<T>::size() const {
     return size_;
 }
+
+template<typename T>
+void DoublyLinkedList<T>::check() const {
+    if (size_ == 0) {
+        if (head || tail) {
+            printf("size = 0, head e tail invalidos\n");
+            fflush(stdout);
+        }
+    } else {
+        if (!head || !tail) {
+            printf("size != 0, head e tail invalidos\n");
+            fflush(stdout);
+        }
+        Node* prev = 0;
+        Node* curr = head;
+        std::size_t i = 0;
+        while (curr) {
+            if (curr->prev() != prev) {
+                printf("lista invalida\n");
+                fflush(stdout);
+            }
+
+            i++;
+            prev = curr;
+            curr = curr->next();
+        }
+        if (i != size_) {
+            printf("i = size invalido\n");
+            fflush(stdout);
+        }
+    }
+}
+
+template class DoublyLinkedList<std::string>;
+template class DoublyLinkedList<int>;
+template class DoublyLinkedList<element>;
+

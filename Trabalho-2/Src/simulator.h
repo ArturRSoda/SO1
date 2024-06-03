@@ -7,6 +7,7 @@
 
 using namespace std;
 
+/*
 struct element {
     int start;
     int size;
@@ -16,10 +17,11 @@ struct element {
         return (this->start >= other.start);
     }
 };
+*/
 
 class Simulator {
  public:
-    Simulator(string file_name);
+    Simulator(parameters* parameters_);
     ~Simulator();
 
     void run();
@@ -38,6 +40,11 @@ class Simulator {
     void delBit(int id);
     int firstFitBit(int size);
     int nextFitBit(int size);
+
+    void printDll();
+    void printStart();
+
+    size_t next_fit_pointer;
 
     int manager;
     int alloc_alg;

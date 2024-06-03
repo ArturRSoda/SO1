@@ -1,7 +1,8 @@
 #ifndef fileReaderH
 #define fileReaderH
 
-#include <bits/stdc++.h>
+#include <iostream>
+#include <string>
 #include "doubly_linked_list.h"
 
 using namespace std;
@@ -16,14 +17,15 @@ struct parameters {
 
 class FileReader {
  public:
-    FileReader(string file_name);
+    FileReader();
     ~FileReader();
 
-    parameters* readFile();
+    void readFile();
+
+    parameters* getParameters();
 
  private:
     parameters* p;
-    fstream file;
 };
 
 #endif

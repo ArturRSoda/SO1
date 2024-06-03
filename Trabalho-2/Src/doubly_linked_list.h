@@ -3,6 +3,21 @@
 
 #include <cstdint>
 #include <stdexcept>
+#include <string>
+
+struct element {
+    int start;
+    int size;
+    int status; // 0 == free ; 1 == occupied
+
+    bool operator>=(const element& other) const {
+        return (this->start >= other.start);
+    }
+
+    bool operator==(const element& other) const {
+        return ((this->start == other.start) && (this->size == other.size) && (this->status == other.status));
+    }
+};
 
 template<typename T>
 class DoublyLinkedList {
@@ -11,56 +26,26 @@ class DoublyLinkedList {
     ~DoublyLinkedList();
     void clear();
 
-    void push_back(const T& data);  // insere no fim
-    void push_front(const T& data);  // insere no início
-    void insert(const T& data, std::size_t index);  // insere na indexição
-    void insert_sorted(const T& data);  // insere em ordem
+    void push_back(const T& data);
+    void push_front(const T& data);
+    void insert(const T& data, std::size_t index);
+    void insert_sorted(const T& data);
 
-    T pop(std::size_t index);  // retira da indexição
-    T pop_back();  // retira do fim
-    T pop_front();  // retira do início
-    void remove(const T& data);  // retira específico
+    T pop(std::size_t index);
+    T pop_back();
+    T pop_front();
+    void remove(const T& data);
 
-    bool empty() const;  // lista vazia
-    bool contains(const T& data) const;  // contém
+    bool empty() const;
+    bool contains(const T& data) const;
 
-    T& at(std::size_t index);  // acesso a um elemento (checando limites)
-    const T& at(std::size_t index) const;  // getter constante a um elemento
+    T& at(std::size_t index);
+    const T& at(std::size_t index) const;
 
-    std::size_t find(const T& data) const;  // indexição de um dado
-    std::size_t size() const;  // tamanho
+    std::size_t find(const T& data) const; 
+    std::size_t size() const;
 
-    //tirar depois
-    void check() const {
-        if (size_ == 0) {
-            if (head || tail) {
-                printf("size = 0, head e tail invalidos\n");
-                fflush(stdout);
-            }
-        } else {
-            if (!head || !tail) {
-                printf("size != 0, head e tail invalidos\n");
-                fflush(stdout);
-            }
-            Node* prev = 0;
-            Node* curr = head;
-            std::size_t i = 0;
-            while (curr) {
-                if (curr->prev() != prev) {
-                    printf("lista invalida\n");
-                    fflush(stdout);
-                }
-
-                i++;
-                prev = curr;
-                curr = curr->next();
-            }
-            if (i != size_) {
-                printf("i = size invalido\n");
-                fflush(stdout);
-            }
-        }
-    }
+    void check() const;
 
  private:
     class Node {
@@ -113,8 +98,10 @@ class DoublyLinkedList {
         Node* next_{nullptr};
     };
 
-    Node* head{nullptr};  // primeiro da lista
-    Node* tail{nullptr};  // ultimo da lista
-    std::size_t size_{0};
+    Node* head;  // primeiro da lista
+    Node* tail;  // ultimo da lista
+    std::size_t size_;
 };
+
 #endif
+

@@ -1,28 +1,27 @@
 #include "fileReader.h"
 
-FileReader::FileReader(string file_name) {
-    file.open(file_name);
+FileReader::FileReader() {
+    p = new parameters;
 }
 
 FileReader::~FileReader() {
     delete p;
 }
 
-parameters* FileReader::readFile() {
-    parameters* pi = new parameters;
-    file >> pi->manager;
-    file >> pi->mem_size;
-    file >> pi->block_size;
-    file >> pi->alloc_alg;
-    file.get();
+void FileReader::readFile() {
+    cin >> p->manager;
+    cin >> p->mem_size;
+    cin >> p->block_size;
+    cin >> p->alloc_alg;
 
     string line;
-    DoublyLinkedList<string> requests;
-    while (getline(file, line)) {
-        requests.push_back(line);
+    getline(cin, line);
+    while (getline(cin, line)) {
+        p->requests.push_back(line);
     }
-    pi->requests = requests;
-    p = pi;
+}
+
+parameters* FileReader::getParameters() {
     return p;
 }
 

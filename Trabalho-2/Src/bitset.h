@@ -1,6 +1,8 @@
 #ifndef bitsetH
 #define bitsetH
 
+#include <cstdint>
+#include <stdexcept>
 #include <string>
 
 using namespace std;
@@ -8,6 +10,7 @@ using namespace std;
 class Bitset {
 public:
     Bitset(int size_);
+    ~Bitset();
 
     void fix(int pos);
     void unfix(int pos);
