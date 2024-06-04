@@ -7,21 +7,9 @@
 
 using namespace std;
 
-/*
-struct element {
-    int start;
-    int size;
-    int status; // 0 == free ; 1 == occupied
-
-    bool operator>=(const element& other) const {
-        return (this->start >= other.start);
-    }
-};
-*/
-
 class Simulator {
  public:
-    Simulator(parameters* parameters_);
+    Simulator();
     ~Simulator();
 
     void run();
@@ -53,10 +41,11 @@ class Simulator {
     int mem_size; // bytes
     int block_size; // bytes
     int qtd_requests;
-    string requests[1000];
+    string requests[REQUEST_SIZE];
 
     Bitset* mem_list_bit;
     DoublyLinkedList<element> mem_list_dll;
     int* start;
+    int* size;
 };
 #endif

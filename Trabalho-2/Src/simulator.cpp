@@ -3,17 +3,20 @@
 #include "doubly_linked_list.h"
 #include "fileReader.h"
 
-Simulator::Simulator(parameters* parameters_) {
-    parameters* p = parameters_;
+Simulator::Simulator() {
+    FileReader fr = FileReader();
+    fr.readFile();
+    parameters* p = fr.getParameters();
     loadParameters(p);
 
     next_fit_pointer = 0;
     last_allocation_start = 0;
 
-    element e = {0, mem_size/block_size, 0};
+    element e = {0, (mem_size+1)/block_size, 0};
     mem_list_dll.push_back(e);
-    start = new int[1000];
-    mem_list_bit = new Bitset(mem_size/block_size);
+    start = new int[REQUEST_SIZE];
+    size = new int[REQUEST_SIZE];
+    mem_list_bit = new Bitset((mem_size+1)/block_size);
 }
 
 Simulator::~Simulator() {
@@ -35,9 +38,9 @@ void Simulator::loadParameters(parameters* p) {
 
 void Simulator::allocDll(int size, int id) {
     int cur_start;
-
     if (alloc_alg == 1) cur_start = firstFitDll(size);
     else                cur_start = nextFitDll(size);
+    if (cur_start == -1) return;
 
     int cur;
     for (size_t i = 0; i < mem_list_dll.size(); i++) {
@@ -108,8 +111,6 @@ int Simulator::firstFitDll(int size) {
     return cur;
 }
 
-//mesmo do de cima mas colocar atributo que salva onde estava procurando
-//e comecar i = atributo ate o final+atributo para rodar a lista inteira
 int Simulator::nextFitDll(int size) {
     int cur;
     element elem;
@@ -135,9 +136,83 @@ int Simulator::nextFitDll(int size) {
 }
 
 void Simulator::allocBit(int size, int id) {
+    int cur_start;
+    if (alloc_alg == 1) cur_start = firstFitBit(size);
+    else                cur_start = nextFitBit(size);
+    if (cur_start == -1) return;
+
+    start[id] = cur_start;
+    for (int i = 0; i < size-1; i++) {
+        mem_list_bit->fix(cur_start + i);
+    }
 }
 
 void Simulator::delBit(int id) {
+    int cur_start = start[id]; 
+    int cur_size = size[id];
+    int i = 0;
+    for (int i = 0; i < cur_size; i++) {
+        mem_list_bit->unfix(cur_start + i);
+    }
+}
+
+int Simulator::firstFitBit(int size) {
+    int cur_pos = -1;
+    int cur_size;
+    for (size_t i = 0; i < mem_list_bit->size(); i++) {
+        bool ok = false;
+        cur_size = 0;
+        while (mem_list_bit->value()[i] == '0') {
+            cur_size++;
+            if (cur_size == size) {
+                ok = true;
+                break;
+            }
+            i++;
+            if (i >= mem_list_bit->value().size()) 
+                break;
+        }
+        if (ok) {
+            cur_pos = i;
+            break;
+        }
+    }
+    return cur_pos;
+}
+
+int Simulator::nextFitBit(int size) {
+    int cur_pos = -1;
+    int cur_size;
+    for (size_t i = 0; i < mem_list_bit->size(); i++) {
+        if (i == last_allocation_start)
+            next_fit_pointer = i;
+    }
+
+    int i = 0;
+    while (true) {
+        if (next_fit_pointer >= mem_list_bit->size())
+            next_fit_pointer = 0;
+
+        bool ok = false;
+        cur_size = 0;
+        while (mem_list_bit->value()[i] == '0') {
+            cur_size++;
+            if (cur_size == size) {
+                ok = true;
+                break;
+            }
+            i++;
+            if (i >= mem_list_bit->value().size()) 
+                break;
+        }
+        if (ok) {
+            cur_pos = i;
+            break;
+        }
+        i++;
+        next_fit_pointer++;
+    }
+    return cur_pos;
 }
 
 void Simulator::alloc(int size, int id) {
@@ -163,7 +238,8 @@ void Simulator::run() {
         ss >> type;
         if (type == "A") {
             ss >> size >> id;
-            alloc(size, id);
+            int num_block = (size+1)/block_size;
+            alloc(num_block, id);
         } else {
             ss >> id;
             del(id);

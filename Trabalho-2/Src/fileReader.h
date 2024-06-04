@@ -1,6 +1,8 @@
 #ifndef fileReaderH
 #define fileReaderH
 
+#define REQUEST_SIZE 1000
+
 #include <iostream>
 #include <string>
 #include "doubly_linked_list.h"
@@ -13,7 +15,7 @@ struct parameters {
     int block_size;
     int alloc_alg;
     int qtd_requests;
-    string requests[1000];
+    string requests[REQUEST_SIZE];
 };
 
 class FileReader {

@@ -1,20 +1,20 @@
 #include "bitset.h"
 
-Bitset::Bitset(int size_) {
-    string temp(size_, '0');
-    string fliped_temp(size_, '1');
+Bitset::Bitset(int size__) {
+    string temp(size__, '0');
+    string fliped_temp(size__, '1');
 
     bitset = temp;
     fliped_bitset = temp;
 
-    qtd_zero = size_;
+    qtd_zero = size__;
     qtd_one = 0;
-    size = size_;
+    size_ = size__;
 }
  Bitset::~Bitset() {}
 
 void Bitset::fix(int pos) {
-    if (pos < 0 || pos >= size) throw std::out_of_range("out of range");
+    if (pos < 0 || pos >= size_) throw std::out_of_range("out of range");
     if (bitset[pos] == '0') {
         qtd_one++;
         qtd_zero--;
@@ -26,7 +26,7 @@ void Bitset::fix(int pos) {
 
 
 void Bitset::unfix(int pos) {
-    if (pos < 0 || pos >= size) throw std::out_of_range("out of range");
+    if (pos < 0 || pos >= size_) throw std::out_of_range("out of range");
     if (bitset[pos] == '1') {
         qtd_zero++;
         qtd_one--;
@@ -47,7 +47,7 @@ void Bitset::flip() {
 }
 
 bool Bitset::check() {
-    return (qtd_one == size);
+    return (qtd_one == size_);
 }
 
 bool Bitset::checkOne() {
@@ -61,3 +61,8 @@ int Bitset::countOne() {
 string Bitset::value() {
     return bitset;
 }
+
+int Bitset::size() {
+    return size_;
+}
+

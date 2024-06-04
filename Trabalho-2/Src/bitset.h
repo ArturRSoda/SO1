@@ -21,11 +21,12 @@ public:
     int countOne();
 
     string value();
+    int size();
 
 private:
     int qtd_zero;
     int qtd_one;
-    int size;
+    int size_;
 
     string bitset;
     string fliped_bitset;
