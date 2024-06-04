@@ -24,7 +24,7 @@ class Simulator {
     int firstFitDll(int size);
     int nextFitDll(int size);
 
-    void allocBit(int size, int id);
+    void allocBit(int size_, int id);
     void delBit(int id);
     int firstFitBit(int size);
     int nextFitBit(int size);
@@ -32,9 +32,14 @@ class Simulator {
     void printDll();
     void printStart();
     void printState();
+    void printFinalState();
 
     size_t next_fit_pointer;
     int last_allocation_start;
+    int bytes_allocated;
+    int bytes_deleted;
+    int qtd_allocation;
+    int qtd_deletion;
 
     int manager;
     int alloc_alg;

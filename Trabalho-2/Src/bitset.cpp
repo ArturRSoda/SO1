@@ -66,3 +66,8 @@ int Bitset::size() {
     return size_;
 }
 
+int Bitset::get_qtd_one() { return qtd_one; }
+
+int Bitset::get_qtd_zero() { return qtd_zero; }
+
+

@@ -23,6 +23,9 @@ public:
     string value();
     int size();
 
+    int get_qtd_zero();
+    int get_qtd_one();
+
 private:
     int qtd_zero;
     int qtd_one;
