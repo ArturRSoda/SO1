@@ -16,9 +16,14 @@ void FileReader::readFile() {
 
     string line;
     getline(cin, line);
+    int i = 0;
+    int qtd_requests = 0;
     while (getline(cin, line)) {
-        p->requests.push_back(line);
+        qtd_requests++;
+        p->requests[i++] = line;
     }
+
+    p->qtd_requests = qtd_requests;
 }
 
 parameters* FileReader::getParameters() {

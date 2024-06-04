@@ -14,6 +14,10 @@ struct element {
         return (this->start >= other.start);
     }
 
+    bool operator>(const element& other) const {
+        return (this->start > other.start);
+    }
+
     bool operator==(const element& other) const {
         return ((this->start == other.start) && (this->size == other.size) && (this->status == other.status));
     }
@@ -104,4 +108,3 @@ class DoublyLinkedList {
 };
 
 #endif
-

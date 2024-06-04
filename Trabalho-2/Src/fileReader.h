@@ -12,7 +12,8 @@ struct parameters {
     int mem_size;
     int block_size;
     int alloc_alg;
-    DoublyLinkedList<string> requests;    
+    int qtd_requests;
+    string requests[1000];
 };
 
 class FileReader {

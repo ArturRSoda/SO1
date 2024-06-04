@@ -12,7 +12,7 @@ Simulator::Simulator(parameters* parameters_) {
 
     element e = {0, mem_size/block_size, 0};
     mem_list_dll.push_back(e);
-    start = new int[p->requests.size()+1];
+    start = new int[1000];
     mem_list_bit = new Bitset(mem_size/block_size);
 }
 
@@ -26,7 +26,11 @@ void Simulator::loadParameters(parameters* p) {
     alloc_alg = p->alloc_alg;
     mem_size = p->mem_size;
     block_size = p->block_size;
-    requests = p->requests;
+    qtd_requests = p->qtd_requests;
+
+    for (int i = 0; i < qtd_requests; i++) {
+        requests[i] = p->requests[i];
+    }
 }
 
 void Simulator::allocDll(int size, int id) {
@@ -148,10 +152,9 @@ void Simulator::del(int id) {
 
 void Simulator::run() {
     printDll();
-    printStart();
     cout << endl;
-    for (size_t i = 0; i < requests.size(); i++) {
-        string request = requests.at(i);
+    for (int i = 0; i < qtd_requests; i++) {
+        string request = requests[i];
         stringstream ss(request);
 
         string type;
@@ -166,7 +169,6 @@ void Simulator::run() {
             del(id);
         }
         printDll();
-        printStart();
         cout << endl;
 
     }
@@ -195,7 +197,7 @@ void Simulator::printState() {
 }
 
 void Simulator::printStart() {
-    for (size_t i = 0; i < requests.size()+1; i++) {
+    for (int i = 0; i < qtd_requests; i++) {
         cout << start[i] << ", ";
     }
     cout << endl;

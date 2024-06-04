@@ -87,32 +87,29 @@ void DoublyLinkedList<T>::insert(const T& data, std::size_t index) {
 
 template<typename T>
 void DoublyLinkedList<T>::insert_sorted(const T& data) {
-    if (empty()) {
-        push_front(data);
-        return;
-    }
-
-    if (!empty()) {
-        bool maior = false;
-        std::size_t index;
-        Node* it = head;
-
-        for (int i = 0; i < static_cast<int>(size_); i++) {
-            if (it->data() >= data) {
-                index = i;
-                maior = true;
-                break;
-            }
-            it = it->next();
-        }
-
-        if (maior) {
-            insert(data, index);
-        }
-        if (!maior) {
-            push_back(data);
-        }
-    }
+	Node* p = head;
+	size_t i = 0;
+	if (static_cast<int>(size_) > 0) {
+		if (static_cast<int>(size_) == 1) {
+			if (p->data() > data) {
+				this->push_front(data);
+			} else {
+				this->push_back(data);
+			}
+			return;
+		}
+		while (p->next() != nullptr) {
+			if (p->data() > data) {
+				this->insert(data, i);
+				return;
+			}
+			i++;
+			p = p->next();
+		}
+		this->push_back(data);
+	} else {
+		this->push_front(data);
+	}
 }
 
 template<typename T>

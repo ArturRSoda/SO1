@@ -52,7 +52,8 @@ class Simulator {
     int alloc_alg;
     int mem_size; // bytes
     int block_size; // bytes
-    DoublyLinkedList<string> requests;
+    int qtd_requests;
+    string requests[1000];
 
     Bitset* mem_list_bit;
     DoublyLinkedList<element> mem_list_dll;
