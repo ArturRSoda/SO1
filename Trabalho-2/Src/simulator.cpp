@@ -63,6 +63,9 @@ void Simulator::del(int id) {
 
 // Processa todos os pedidos e faz impressoes necessarias
 void Simulator::run() {
+    cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=- Simulacao -=-=-=-=-=-=-=-=-=-=-=-=-=- " << endl;
+    cout << " -> Estado inicial:" << endl;
+    manager->printState();
     cout << endl;
     for (int i = 0; i < qty_requests; i++) {
         string request = requests[i];
@@ -86,6 +89,7 @@ void Simulator::run() {
         manager->printState();
         cout << endl;
     }
+    cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- " << endl;
 
     cout << endl;
     cout << "-=-=-=-=-=-=-=-=-=-=-=- Impressoes finais -=-=-=-=-=-=-=-=-=-=-=- " << endl;
