@@ -14,7 +14,7 @@ struct parameters {
     int mem_size;
     int block_size;
     int alloc_alg;
-    int qtd_requests;
+    int qty_requests;
     string requests[REQUEST_SIZE];
 };
 

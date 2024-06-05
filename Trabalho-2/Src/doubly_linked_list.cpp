@@ -1,7 +1,5 @@
 #include "doubly_linked_list.h"
 #include <unistd.h>
-#include <iostream>
-
 
 template<typename T>
 DoublyLinkedList<T>::DoublyLinkedList() {

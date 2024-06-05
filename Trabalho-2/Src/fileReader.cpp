@@ -23,7 +23,7 @@ void FileReader::readFile() {
         p->requests[i++] = line;
     }
 
-    p->qtd_requests = qtd_requests;
+    p->qty_requests = qtd_requests;
 }
 
 parameters* FileReader::getParameters() {

@@ -1,9 +1,12 @@
 #ifndef simulatorH
 #define simulatorH
 
-#include <bits/stdc++.h>
+#include <sstream>
+
 #include "fileReader.h"
-#include "bitset.h"
+#include "manager.h"
+#include "dll_manager.h"
+#include "bitmap_manager.h"
 
 using namespace std;
 
@@ -16,41 +19,29 @@ class Simulator {
 
  private:
     void loadParameters(parameters* p);
+
     void alloc(int size, int id);
     void del(int id);
 
-    void allocDll(int size, int id);
-    void delDll(int id);
-    int firstFitDll(int size);
-    int nextFitDll(int size);
-
-    void allocBit(int size_, int id);
-    void delBit(int id);
-    int firstFitBit(int size);
-    int nextFitBit(int size);
-
     void printDll();
     void printStart();
-    void printState();
     void printFinalState();
 
-    size_t next_fit_pointer;
-    int last_allocation_start;
     int bytes_allocated;
     int bytes_deleted;
-    int qtd_allocation;
-    int qtd_deletion;
+    int qty_allocation;
+    int qty_deletion;
 
-    int manager;
+    int memory_manager;
     int alloc_alg;
     int mem_size; // bytes
     int block_size; // bytes
-    int qtd_requests;
+    int qty_requests;
     string requests[REQUEST_SIZE];
 
-    Bitset* mem_list_bit;
-    DoublyLinkedList<element> mem_list_dll;
     int* start;
     int* size;
+
+    Manager* manager;
 };
 #endif
