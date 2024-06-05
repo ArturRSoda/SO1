@@ -23,7 +23,6 @@ class Simulator {
     void alloc(int size, int id);
     void del(int id);
 
-    void printDll();
     void printStart();
     void printFinalState();
 
