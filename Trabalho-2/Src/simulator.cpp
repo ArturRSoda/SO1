@@ -1,6 +1,6 @@
 #include "simulator.h"
 
-// Carrega parametros, inicia variaveis e gerenciadores de memoria
+// Carrega parametros, inicia variaveis e gerenciador de memoria
 Simulator::Simulator() {
     FileReader fr = FileReader();
     fr.readFile();
@@ -42,6 +42,7 @@ void Simulator::loadParameters(parameters* p) {
 }
 
 
+// Aloca segmento do pedido, se for sucesso, incrementa meditores e altera indicadores
 void Simulator::alloc(int size_, int id) {
     int seg_start = manager->alloc(size_, alloc_alg);
 
@@ -53,12 +54,14 @@ void Simulator::alloc(int size_, int id) {
     }
 }
 
+// Desaloca segmento do pedido
 void Simulator::del(int id) {
     bytes_deleted += size[id];
     qty_deletion += 1;
     manager->del(start[id], size[id]);
 }
 
+// Processa todos os pedidos e faz impressoes necessarias
 void Simulator::run() {
     cout << endl;
     for (int i = 0; i < qty_requests; i++) {

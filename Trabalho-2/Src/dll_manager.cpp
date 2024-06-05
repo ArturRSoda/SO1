@@ -85,13 +85,19 @@ void DllManager::del(int seg_start, int seg_size) {
 }
 
 
+// Retorna bloco de inicio do primeiro segmento livre que caiba o pedido
+//     a partir do inicio do da lista
 int DllManager::firstFit(int size) {
+    // Busca segmento a partir do inicio do lista
     return searchSeg(0, size);
 }
 
 
+// Retorna bloco de inicio do primeiro segmento livre que caiba o pedido
+//     a partir do inicio do ultimo segmento alocado
 int DllManager::nextFit(int size) {
     int seg_ptr;
+    // Busca segmento a partir do ultimo segmento alocado
     for (size_t i = 0; i < mem_list_dll.size(); i++) {
         if (mem_list_dll.at(i).start == last_allocation_start) {
             seg_ptr = i;
@@ -102,34 +108,43 @@ int DllManager::nextFit(int size) {
 }
 
 
+// Procura primeiro seguimento que caiba o tamanho do pedido, apartir de seguimento dado no parametro
+// Se nao achar, retorna -1
 int DllManager::searchSeg(int seg_ptr, int size) {
     element elem;
     int seg_start;
     bool flag;
 
+    // Array para controle de seguimentos ja visitados
     bool visited_seg[mem_list_dll.size()];
     for (size_t i = 0; i < mem_list_dll.size(); i++)
         visited_seg[i] = false;
 
     seg_start = -1;
     flag = true;
+    // Loop enquanto ainda tiver segmentos a serem visitados
     while (true) {
+        // Verifica se ha segmentos para ser visitados
         for (auto seg: visited_seg) {
             if (seg == false) flag = false;
         }
         if (flag) break;
 
+        // Se ponteiro passar do ultimo segmento, volta a apontar ao primeiro segmento
         if (seg_ptr >= static_cast<int>(mem_list_dll.size()))
             seg_ptr = 0;
 
+        // Indica como segmento visitado
         visited_seg[seg_ptr] = true;
 
+        // Verifica se segmento apontado, possui tamanho desejado e se esta livre
         elem = mem_list_dll.at(seg_ptr);
         if ((elem.size >= size) and (elem.status == 0)) {
             seg_start = elem.start;
             break;
         }
 
+        // Aponta para o proximo segmento
         seg_ptr++;
     }
 
@@ -137,6 +152,7 @@ int DllManager::searchSeg(int seg_ptr, int size) {
 }
 
 
+// Retorna quantidade de blocos alocados
 int DllManager::getQtyAllocatedBlocks() {
     int qty_blocks = 0;
     for (size_t i = 0; i < mem_list_dll.size(); i++) {
@@ -147,6 +163,7 @@ int DllManager::getQtyAllocatedBlocks() {
 }
 
 
+// Imprime situacao atual do gerenciador do bitset
 void DllManager::printState() {
     element elem;
     for (size_t i = 0; i < mem_list_dll.size(); i++) {

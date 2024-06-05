@@ -47,7 +47,7 @@ int BitmapManager::firstFit(int size) {
 }
 
 // Retorna bloco de inicio do primeiro segmento livre que caiba o pedido
-// A partir do inicio do ultimo segmento alocado
+//     a partir do inicio do ultimo segmento alocado
 int BitmapManager::nextFit(int size) {
     int block_ptr;
     // Busca segmento a partir do ultimo segmento alocado
@@ -61,41 +61,55 @@ int BitmapManager::nextFit(int size) {
 }
 
 // Procura primeiro seguimento que caiba o tamanho do pedido, apartir de seguimento dado no parametro
+// Se nao achar, retorna -1
 int BitmapManager::searchSeg(int seg_ptr, int size) {
     int seg_start, seg_size, bitset_ptr;
     bool flag;
 
+    // bitset para controle de blocos ja visitados
     Bitset visited_block = Bitset(mem_list_bit->size());
 
     seg_start = -1;
     flag = false;
+
+    // Loop enquanto ainda tiver blocos a serem visitados
     while (visited_block.get_qtd_zero()) {
+        // Se ponteiro passar do ultimo bloco, volta a apontar ao primeiro bloco
         if (seg_ptr >= mem_list_bit->size())
             seg_ptr = 0;
 
-        seg_size = 0;
-        bitset_ptr = seg_ptr;
-        visited_block.fix(seg_ptr); 
+        seg_size = 0;                // Indica tamanho do segmento livre atual
+        bitset_ptr = seg_ptr;        // Ponteiro para verificar segmento livre
+        visited_block.fix(seg_ptr);  // Indica bloco visitado
 
+        // Verifica bloco livre
         while (mem_list_bit->value()[bitset_ptr] == '0') {
             seg_size++;
 
+            // Verifica se segmento livre alcacar o tamanho desejado
             if (seg_size >= size) {
                 flag = true;
                 break;
             }
 
+            // Aponta para o segmento livre que estamos
             bitset_ptr++;
+
+            // se passarmos do ultimo bloco da lista, paramos de verificar
             if (bitset_ptr >= static_cast<int>(mem_list_bit->size()))
                 break;
 
+            // Indica bloco visitado
             visited_block.fix(bitset_ptr);
         }
 
+        // Verifica se achou segmento livre de tamanho desejado
         if (flag) {
             seg_start = seg_ptr;
             break;
         }
+        
+        // Aponta para proximo bloco nao livre
         seg_ptr += (seg_size) ? seg_size : 1;
     }
     return seg_start;
