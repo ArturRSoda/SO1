@@ -1,23 +1,27 @@
 #include "simulator.h"
 
-// Carrega parametros, inicia variaveis e gerenciador de memoria
+// Construtor
 Simulator::Simulator() {
+    // Carrega Parametros
     FileReader fr = FileReader();
     fr.readFile();
     parameters* p = fr.getParameters();
     loadParameters(p);
 
+    // Variaveis de medicao
     bytes_allocated = 0;
     bytes_deleted = 0;
     qty_allocation = 0;
     qty_deletion = 0;
 
-    start = new int[REQUEST_SIZE];
-    size = new int[REQUEST_SIZE];
+    start = new int[REQUEST_SIZE]; // Indica o comeco de cada segmento
+    size = new int[REQUEST_SIZE];  // Indica o tamanho de cada segmento
 
+    // Calculo da quantidade de blocos
     int qty_block = mem_size/block_size;
     qty_block += (mem_size % block_size == 0) ? 0 : 1;
 
+    // Inicia gerenciador de memoria
     if (memory_manager == 1) manager = new BitmapManager(qty_block, block_size);
     else                     manager = new DllManager(qty_block, block_size);
 }
