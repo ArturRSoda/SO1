@@ -21,7 +21,7 @@ int BitmapManager::alloc(int size, int alloc_alg) {
     int seg_start = (alloc_alg == 1) ? firstFit(size) : nextFit(size);
     if (seg_start == -1) return seg_start;
 
-    // Marca bloco de inicio do ultimo bloco alocado
+    // Marca ultimo segmento alocado
     last_allocation_start = seg_start + size;
 
     // Aloca

@@ -51,7 +51,7 @@ void Simulator::alloc(int size_, int id) {
     int seg_start = manager->alloc(size_, alloc_alg);
 
     if (seg_start != -1) {
-        bytes_allocated += size_;
+        bytes_allocated += size_*block_size;
         qty_allocation += 1;
         size[id] = size_;
         start[id] = seg_start;
@@ -60,7 +60,7 @@ void Simulator::alloc(int size_, int id) {
 
 // Desaloca segmento do pedido
 void Simulator::del(int id) {
-    bytes_deleted += size[id];
+    bytes_deleted += size[id]*block_size;
     qty_deletion += 1;
     manager->del(start[id], size[id]);
 }
